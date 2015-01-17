@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.Map;
 
@@ -66,7 +67,8 @@ public class MainActivity extends Activity {
             this.showTranslateErrorDialog(outputTxt);
         } else {
             // Correct translation
-
+            TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
+            translateTxtView.setText(outputTxt);
         }
     }
 
