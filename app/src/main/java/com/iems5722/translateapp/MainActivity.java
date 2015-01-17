@@ -56,12 +56,17 @@ public class MainActivity extends Activity {
 
         // show some feedback to user: translated text, error message, dialog etc
 
-        if (outputTxt == null) {
+        if (inputTxt.equals("")) {
+            // Empty input
+            outputTxt = "Input is empty";
+            this.showTranslateErrorDialog(outputTxt);
+        } else if (outputTxt == null) {
             // Invalid translation
             outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
             this.showTranslateErrorDialog(outputTxt);
         } else {
             // Correct translation
+
         }
     }
 
