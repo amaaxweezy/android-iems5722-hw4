@@ -7,6 +7,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+
+import java.util.Map;
 
 public class MainActivity extends Activity {
 
@@ -35,11 +38,39 @@ public class MainActivity extends Activity {
     // translate look up
     private void translateText() {
         // get user input
+        EditText translateEdt = (EditText) this.findViewById(R.id.translate_edt);
+        String inputTxt = translateEdt.getText().toString();
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("User input %s", inputTxt));
+        }
 
         // try get word out of dictionary
+        WordDictionary myDictionary = new WordDictionary();
+        Map<String, String> myMap = myDictionary.getDictionary();
+        String outputTxt = myMap.get(inputTxt);
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("Mapping |%s| -> |%s|", inputTxt, outputTxt));
+        }
 
         // show some feedback to user: translated text, error message, dialog etc
 
+        if (outputTxt == null) {
+            // Invalid translation
+            outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
+            this.showTranslateErrorDialog(outputTxt);
+        } else {
+            // Correct translation
+        }
+    }
+
+    protected void showTranslateErrorDialog(String err) {
+        Bundle args = new Bundle();
+        args.putString("errorMsg", err);
+        TranslateErrorDialog dialog = new TranslateErrorDialog();
+        dialog.setArguments(args);
+        dialog.show(this.getFragmentManager(), "translationErrors");
     }
 
 
