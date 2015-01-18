@@ -1,6 +1,7 @@
 package com.iems5722.translateapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +35,34 @@ public class MainActivity extends Activity {
                 MainActivity.this.translateText();
             }
         });
+
+        // add click listener to share button ()
+        Button shareButton = (Button) this.findViewById(R.id.share_btn);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Wire shareText() if the button has been clicked
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Share button has been clicked");
+                }
+                MainActivity.this.shareText();
+            }
+        });
+    }
+
+    private void shareText() {
+        // Share translated text to other application by using INTENT
+
+        // Get translated text
+        TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
+        String translatedTxt = translateTxtView.getText().toString();
+
+        // Create a send intent
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Translated text");
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, translatedTxt);
+        this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
     // translate look up

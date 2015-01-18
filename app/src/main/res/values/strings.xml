@@ -6,5 +6,6 @@
     <string name="my_app_usage">Enter a word to translate to get started</string>
     <string name="my_translate_btn">Submit</string>
     <string name="my_translate_error_ok">OK</string>
+    <string name="my_share_btn">Share</string>
     <string name="my_default_translated_text">Translated text</string>
 </resources>

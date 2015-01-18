@@ -9,10 +9,24 @@
               android:orientation="vertical"
               tools:context="com.iems5722.translateapp.MainActivity">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/translate_usage"
+        android:text="@string/my_app_usage"/>
+
     <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/translate_edt"/>
+
+    <TextView
+        android:text="@string/my_default_translated_text"
+        android:textStyle="bold"
+        android:id="@+id/translated_txt_view"
+        android:background="#e2e2e2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 
     <Button
         android:layout_width="fill_parent"
@@ -20,18 +34,11 @@
         android:id="@+id/translate_btn"
         android:text="@string/my_translate_btn"/>
 
-    <TextView
+    <Button
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/my_default_translated_text"
-        android:textStyle="bold"
-        android:id="@+id/translated_txt_view"/>
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/translate_usage"
-        android:text="@string/my_app_usage"/>
+        android:id="@+id/share_btn"
+        android:text="@string/my_share_btn"
+        android:layout_height="wrap_content"/>
 
 
 </LinearLayout>
