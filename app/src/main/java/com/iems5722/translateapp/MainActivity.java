@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class MainActivity extends Activity {
         if (inputTxt.equals("")) {
             // Empty input
             outputTxt = "Input is empty";
-            this.showTranslateErrorDialog(outputTxt);
+            this.showTranslateEmptyToast(outputTxt);
         } else if (outputTxt == null) {
             // Invalid translation
             outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
@@ -99,6 +100,13 @@ public class MainActivity extends Activity {
             TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
             translateTxtView.setText(outputTxt);
         }
+    }
+
+    protected void showTranslateEmptyToast(String err) {
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(this.getApplicationContext(), err, duration);
+        toast.show();
     }
 
     protected void showTranslateErrorDialog(String err) {
