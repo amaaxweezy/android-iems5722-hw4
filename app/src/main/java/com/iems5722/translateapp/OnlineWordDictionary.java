@@ -4,12 +4,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 
 public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, String>> {
@@ -76,6 +81,57 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
         HashMap<String, String> ret = new HashMap<>();
 
         ret.put("two", "二");
+
+        String inputTxt = this.inputTxt;
+
+        try {
+            URL serverURL = new URL(
+                    String.format(
+                            "http://iems5722v.ie.cuhk.edu.hk:8080/translate.php?word=%s",
+                            inputTxt
+                    )
+            );
+            HttpURLConnection urlSocket = (HttpURLConnection) serverURL.openConnection();
+
+            try {
+                InputStream in = new BufferedInputStream(urlSocket.getInputStream());
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                String translatedTxt = reader.readLine();
+
+                if (BuildConfig.DEBUG) {
+                    Log.d(
+                            TAG,
+                            String.format(
+                                    "Received data |%s| from |%s|",
+                                    translatedTxt,
+                                    serverURL.toString()
+                            )
+                    );
+                }
+
+                // Make dictionary only if server translate successfully
+                if (!translatedTxt.matches(".*Error.*")) {
+                    ret.put(inputTxt, translatedTxt);
+                }
+
+            } finally {
+                urlSocket.disconnect();
+            }
+
+        } catch (MalformedURLException e) {
+            Log.e(TAG, String.format("URL error |%s|", e.getMessage()));
+
+            this.isServerError = true;
+            this.errorMessage = e.getMessage();
+        } catch (IOException e) {
+            Log.e(TAG, String.format("Server error |%s|", e.getMessage()));
+
+            this.isServerError = true;
+            this.errorMessage = e.getMessage();
+        }
+
 
         return ret;
     }
