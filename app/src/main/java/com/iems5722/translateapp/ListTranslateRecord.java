@@ -23,11 +23,14 @@ public class ListTranslateRecord extends ListActivity
 
     private static final String TAG = MainActivity.class.getClass().getSimpleName();
 
+    // An adapter reference
     protected ArrayAdapter<String> adapter;
 
+    // Save which row user has been selected
     protected int selectedRowPosition = -1;
 
     public void setSelectedRowPosition(int selectedRowPosition) {
+        // Setter method
         this.selectedRowPosition = selectedRowPosition;
     }
 

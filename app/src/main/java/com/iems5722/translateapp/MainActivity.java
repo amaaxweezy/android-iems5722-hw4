@@ -109,8 +109,12 @@ public class MainActivity extends Activity {
         this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
-    // translate look up
     private void translateText(String protocol) {
+        // Delegate workloads for looking up dictionary to Class::OnlineWordDictionary with
+        // given protocol
+        //
+        // @param protocol String
+
         // get user input
         EditText translateEdt = (EditText) this.findViewById(R.id.translate_edt);
         String inputTxt = translateEdt.getText().toString();
@@ -133,6 +137,10 @@ public class MainActivity extends Activity {
     }
 
     protected void showTranslateEmptyToast(String err) {
+        // Pop up a toast with message err
+        //
+        // @param err String
+
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(this.getApplicationContext(), err, duration);
@@ -140,6 +148,11 @@ public class MainActivity extends Activity {
     }
 
     public void showTranslateErrorDialog(String err) {
+        // Show error box with given message if there are any errors
+        //
+        // @param err String
+
+
         Bundle args = new Bundle();
         args.putString("errorMsg", err);
         TranslateErrorDialog dialog = new TranslateErrorDialog();
