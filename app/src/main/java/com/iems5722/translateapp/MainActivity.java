@@ -12,8 +12,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Map;
-
 public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getClass().getSimpleName();
@@ -95,34 +93,22 @@ public class MainActivity extends Activity {
         // get user input
         EditText translateEdt = (EditText) this.findViewById(R.id.translate_edt);
         String inputTxt = translateEdt.getText().toString();
+        String outputTxt;
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("User input %s", inputTxt));
         }
 
-        // try get word out of dictionary
-        WordDictionary myDictionary = new WordDictionary(protocol);
-        Map<String, String> myMap = myDictionary.getDictionary();
-        String outputTxt = myMap.get(inputTxt);
-
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, String.format("Mapping |%s| -> |%s|", inputTxt, outputTxt));
-        }
 
         // show some feedback to user: translated text, error message, dialog etc
-
         if (inputTxt.equals("")) {
             // Empty input
             outputTxt = "Input is empty";
             this.showTranslateEmptyToast(outputTxt);
-        } else if (outputTxt == null) {
-            // Invalid translation
-            outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
-            this.showTranslateErrorDialog(outputTxt);
         } else {
-            // Correct translation
-            TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
-            translateTxtView.setText(outputTxt);
+            // Send request to the online word dictionary
+            OnlineWordDictionary myDictionary = new OnlineWordDictionary(this, protocol, inputTxt);
+            myDictionary.execute();
         }
     }
 
@@ -133,7 +119,7 @@ public class MainActivity extends Activity {
         toast.show();
     }
 
-    protected void showTranslateErrorDialog(String err) {
+    public void showTranslateErrorDialog(String err) {
         Bundle args = new Bundle();
         args.putString("errorMsg", err);
         TranslateErrorDialog dialog = new TranslateErrorDialog();
