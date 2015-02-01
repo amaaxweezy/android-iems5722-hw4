@@ -31,8 +31,14 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/translate_btn"
-        android:text="@string/my_translate_btn"/>
+        android:id="@+id/tcp_translate_btn"
+        android:text="@string/my_tcp_translate_btn"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/http_translate_btn"
+        android:text="@string/my_http_translate_btn"/>
 
     <Button
         android:layout_width="fill_parent"

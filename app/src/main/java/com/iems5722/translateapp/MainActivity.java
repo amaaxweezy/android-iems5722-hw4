@@ -25,8 +25,8 @@ public class MainActivity extends Activity {
         // get references to layout objects
 
         // add click listener to button to call translateText()
-        Button translateButton = (Button) this.findViewById(R.id.translate_btn);
-        translateButton.setOnClickListener(new View.OnClickListener() {
+        Button TCPTranslateButton = (Button) this.findViewById(R.id.tcp_translate_btn);
+        TCPTranslateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Wire translateText() if the button has been clicked
