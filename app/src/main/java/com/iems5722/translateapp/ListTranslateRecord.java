@@ -2,6 +2,7 @@ package com.iems5722.translateapp;
 
 import android.app.DialogFragment;
 import android.app.ListActivity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.widget.ListView;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -87,7 +90,28 @@ public class ListTranslateRecord extends ListActivity
         // Delete that row
         this.adapter.remove(targetRow);
 
-        // TODO Update text files
+        // Update text files
+        this.updateTranslationRecord();
+    }
+
+    protected void updateTranslationRecord() {
+        // Helper method for updating translation records
+
+        String fileName = "translate_record";
+        try {
+            FileOutputStream outputStream = this.openFileOutput(
+                    fileName, Context.MODE_PRIVATE);
+
+            for (int i = 0; i < adapter.getCount(); i++) {
+                String rowTxt = adapter.getItem(i);
+
+                outputStream.write(String.format("%s\n", rowTxt).getBytes());
+            }
+            outputStream.close();
+
+        } catch (IOException e) {
+            Log.e(TAG, String.format("Update error |%s|", e.getMessage()));
+        }
     }
 
     protected ArrayList<String> readTranslationRecord() {
