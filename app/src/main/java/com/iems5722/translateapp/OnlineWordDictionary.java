@@ -1,5 +1,6 @@
 package com.iems5722.translateapp;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
@@ -7,6 +8,7 @@ import android.widget.TextView;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,6 +77,32 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
         }
 
         return ret;
+    }
+
+    protected void saveTranslation(HashMap<String, String> map) {
+        // Helper method for saving translation
+        //
+        // @param map HashMap<String, String>
+        //   <input, output>
+
+        String fileName = "translate_record";
+        try {
+            FileOutputStream outputStream = this.activity.openFileOutput(
+                    fileName, Context.MODE_APPEND);
+
+            String translatedTxt = map.get(this.inputTxt);
+
+            outputStream.write(String.format(
+                    "%s: %s\n",
+                    this.inputTxt,
+                    translatedTxt == null ? "Translate Error" : translatedTxt
+            ).getBytes());
+
+            outputStream.close();
+
+        } catch (IOException e) {
+            Log.e(TAG, String.format("Saving error |%s|", e.getMessage()));
+        }
     }
 
     protected HashMap<String, String> myHTTPLookUp() {
@@ -176,6 +204,8 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
                 ret.put(inputTxt, translatedTxt);
             }
 
+            res.close();
+
         } catch (IOException e) {
             Log.e(TAG, String.format("Server error |%s|", e.getMessage()));
 
@@ -187,6 +217,9 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
     }
 
     protected void onPostExecute(HashMap<String, String> myMap) {
+        // Save Translation
+        this.saveTranslation(myMap);
+
         if (this.isServerError) {
             this.activity.showTranslateErrorDialog(this.errorMessage);
         } else {
