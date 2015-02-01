@@ -47,7 +47,29 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
         //
         // @return HashMap<String, String>
 
-        HashMap<String, String> ret = new HashMap<String, String>();
+        HashMap<String, String> ret;
+
+        if (this.myProtocol.equals("TCP")) {
+            // TCP
+            ret = this.myTCPLookUp();
+        } else {
+            // HTTP
+            ret = this.myHTTPLookUp();
+        }
+
+        return ret;
+    }
+
+    protected HashMap<String, String> myHTTPLookUp() {
+        HashMap<String, String> ret = new HashMap<>();
+
+        ret.put("two", "二");
+
+        return ret;
+    }
+
+    protected HashMap<String, String> myTCPLookUp() {
+        HashMap<String, String> ret = new HashMap<>();
 
         ret.put("one", "一");
 
