@@ -59,6 +59,20 @@ public class MainActivity extends Activity {
         Button HTTPTranslateButton = (Button) this.findViewById(R.id.http_translate_btn);
         HTTPTranslateButton.setOnClickListener(onTranslateButtonClickHandler);
 
+        // add click listener to record button to call
+        Button recordButton = (Button) this.findViewById(R.id.record_btn);
+        recordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Translate records has been clicked");
+                }
+
+                // Wire up onClick handler to our activity method
+                MainActivity.this.showTranslateRecords();
+            }
+        });
+
         // add click listener to share button ()
         Button shareButton = (Button) this.findViewById(R.id.share_btn);
         shareButton.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +85,13 @@ public class MainActivity extends Activity {
                 MainActivity.this.shareText();
             }
         });
+    }
+
+    private void showTranslateRecords() {
+        // Delegate the workload for showing records to ListTranslateRecord
+
+        Intent intent = new Intent(MainActivity.this, ListTranslateRecord.class);
+        startActivity(intent);
     }
 
     private void shareText() {
@@ -98,7 +119,6 @@ public class MainActivity extends Activity {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("User input %s", inputTxt));
         }
-
 
         // show some feedback to user: translated text, error message, dialog etc
         if (inputTxt.equals("")) {
