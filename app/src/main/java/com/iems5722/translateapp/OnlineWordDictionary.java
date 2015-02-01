@@ -78,9 +78,9 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
     }
 
     protected HashMap<String, String> myHTTPLookUp() {
-        HashMap<String, String> ret = new HashMap<>();
+        // Look up dictionary via HTTP
 
-        ret.put("two", "二");
+        HashMap<String, String> ret = new HashMap<>();
 
         String inputTxt = this.inputTxt;
 
@@ -137,6 +137,8 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
     }
 
     protected HashMap<String, String> myTCPLookUp() {
+        // Look up dictionary via TCP
+
         HashMap<String, String> ret = new HashMap<>();
 
         // Do TCP connection here
