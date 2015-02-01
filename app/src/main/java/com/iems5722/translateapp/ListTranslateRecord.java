@@ -1,5 +1,6 @@
 package com.iems5722.translateapp;
 
+import android.app.DialogFragment;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,11 +15,18 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
-public class ListTranslateRecord extends ListActivity {
+public class ListTranslateRecord extends ListActivity
+        implements DeleteRecordConfirmDialog.ClickListener {
 
     private static final String TAG = MainActivity.class.getClass().getSimpleName();
 
     protected ArrayAdapter<String> adapter;
+
+    protected int selectedRowPosition = -1;
+
+    public void setSelectedRowPosition(int selectedRowPosition) {
+        this.selectedRowPosition = selectedRowPosition;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +49,46 @@ public class ListTranslateRecord extends ListActivity {
         ListView view = this.getListView();
         view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(
+                    AdapterView<?> parent, View view, int position, long id
+            ) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, String.format("Item pos |%d| id|%d|", position, id));
                 }
+
+                ListTranslateRecord.this.setSelectedRowPosition(position);
+
+                DeleteRecordConfirmDialog dialog = new DeleteRecordConfirmDialog();
+                dialog.show(ListTranslateRecord.this.getFragmentManager(), "deleteRecordConfirm");
 
                 return true;
             }
         });
     }
 
+    public void confirmDeleteHandler(DialogFragment dialog) {
+        // Confirm delete handler. It will going to delete the selected record.
+        //
+        // @param dialog DialogFragment
+
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                    TAG,
+                    String.format(
+                            "Confirm delete row with position |%d|",
+                            this.selectedRowPosition
+                    )
+            );
+        }
+
+        // Get the target row
+        String targetRow = this.adapter.getItem(this.selectedRowPosition);
+
+        // Delete that row
+        this.adapter.remove(targetRow);
+
+        // TODO Update text files
+    }
 
     protected ArrayList<String> readTranslationRecord() {
         // Helper method for reading translation records

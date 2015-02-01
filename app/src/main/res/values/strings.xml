@@ -10,5 +10,11 @@
     <string name="my_share_btn">Share</string>
     <string name="my_default_translated_text">Translated text</string>
     <string name="my_record_btn">Translate Record</string>
+    <string name="my_record_delete_yes">Yes</string>
+    <string name="my_record_delete_no">No</string>
+    <string name="my_record_confirm_message">Do you really want to delete this record?</string>
+    <string name="my_record_confirm_title">Delete record</string>
     <string name="title_activity_list_translate_record">ListTranslateRecord</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
