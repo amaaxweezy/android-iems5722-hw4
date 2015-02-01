@@ -9,4 +9,5 @@
     <string name="my_translate_error_ok">OK</string>
     <string name="my_share_btn">Share</string>
     <string name="my_default_translated_text">Translated text</string>
+    <string name="my_record_btn">Translate Record</string>
 </resources>

@@ -46,5 +46,10 @@
         android:text="@string/my_share_btn"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:layout_width="fill_parent"
+        android:id="@+id/record_btn"
+        android:text="@string/my_record_btn"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>
