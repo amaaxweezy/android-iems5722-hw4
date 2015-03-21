@@ -7,8 +7,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -19,6 +23,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.instance_translation);
 
+        // Get the reference for our list view
+        ListView listView = (ListView) findViewById(R.id.translationRecords);
+
+        // Publish a faked records for testing first
+        List<String> translationRecords = new ArrayList<String>();
+        for (int i = 0; i < 10; i++) {
+            translationRecords.add(String.format("Line %d", i));
+        }
+
+        // Instantiate an adapter
+        TranslationRecordAdapter adapter = new TranslationRecordAdapter(this, translationRecords);
+
+        // Attach the adapter to our view
+        listView.setAdapter(adapter);
     }
 
     private void showTranslateRecords() {
@@ -109,9 +127,6 @@ public class MainActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 }

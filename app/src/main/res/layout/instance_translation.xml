@@ -7,7 +7,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="395dp"
-        android:id="@+id/messageList"
+        android:id="@+id/translationRecords"
         android:layout_gravity="center_horizontal"
         android:layout_above="@+id/inputBox"
         android:layout_alignParentRight="true"
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:text="@string/my_http_translate_btn"
         android:id="@+id/submit"
-        android:layout_below="@+id/messageList"
+        android:layout_below="@+id/translationRecords"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"/>
