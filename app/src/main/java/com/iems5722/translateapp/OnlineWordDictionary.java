@@ -3,9 +3,7 @@ package com.iems5722.translateapp;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -15,12 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 
 public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, String>> {
@@ -47,10 +43,6 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
         //
         // @param protocol String
         //   Should be either TCP or HTTP
-        //
-        // @param inputTxt String
-        //
-        //   URL encoded text which going to query.
         //
         // @NOTE: If filling in protocol other than TCP or HTTP, assume running with TCP
 
@@ -123,7 +115,7 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
         try {
             URL serverURL = new URL(
                     String.format(
-                            "http://192.168.1.113:8080/?words=%s",
+                            "http://iems5722v.ie.cuhk.edu.hk:8080/translate.php?word=%s",
                             inputTxt
                     )
             );
@@ -134,47 +126,24 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-                String response = reader.readLine();
+                String translatedTxt = reader.readLine();
 
                 if (BuildConfig.DEBUG) {
                     Log.d(
                             TAG,
                             String.format(
                                     "Received data |%s| from |%s|",
-                                    response,
+                                    translatedTxt,
                                     serverURL.toString()
                             )
                     );
                 }
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
 
-                    String message = jsonObject.getString("message");
-                    String output = jsonObject.getString("output");
-
-                    if (BuildConfig.DEBUG) {
-                        Log.d(
-                                TAG,
-                                String.format(
-                                        "json.message |%s|\n json.output |%s|",
-                                        message,
-                                        output
-                                )
-                        );
-                    }
-
-                    // Make dictionary only if server translate successfully
-                    if (message.matches("OK")) {
-                        ret.put(inputTxt, output);
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, String.format("JSON error |%s|", e.getMessage()));
-
-                    this.isServerError = true;
-                    this.errorMessage = e.getMessage();
-                } finally {
-                    reader.close();
+                // Make dictionary only if server translate successfully
+                if (!translatedTxt.matches(".*Error.*")) {
+                    ret.put(inputTxt, translatedTxt);
                 }
+
             } finally {
                 urlSocket.disconnect();
             }
@@ -248,36 +217,30 @@ public class OnlineWordDictionary extends AsyncTask<Void, Void, HashMap<String, 
     }
 
     protected void onPostExecute(HashMap<String, String> myMap) {
-//        // Save Translation
-//        this.saveTranslation(myMap);
-
+        // Save Translation
+        this.saveTranslation(myMap);
 
         if (this.isServerError) {
             this.activity.showTranslateErrorDialog(this.errorMessage);
         } else {
+            String inputTxt = this.inputTxt;
 
-            try {
-                String inputTxt = this.inputTxt;
+            // Update UI according with the given map
+            String outputTxt = myMap.get(inputTxt);
 
-                // Update UI according with the given map
-                String outputTxt = myMap.get(inputTxt);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format("Mapping |%s| -> |%s|", inputTxt, outputTxt));
+            }
 
-                inputTxt = URLDecoder.decode(inputTxt, "UTF-8");
-
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, String.format("Mapping |%s| -> |%s|", inputTxt, outputTxt));
-                }
-
-                if (outputTxt == null) {
-                    // Invalid translation
-                    outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
-                    this.activity.showTranslateErrorDialog(outputTxt);
-                } else {
-                    // Correct translation
-                    this.activity.addTranslationRecord(inputTxt, outputTxt);
-                }
-            } catch (UnsupportedEncodingException e) {
-                this.activity.showTranslateErrorDialog(e.getMessage());
+            if (outputTxt == null) {
+                // Invalid translation
+                outputTxt = String.format("Input |%s| cannot be translated", inputTxt);
+                this.activity.showTranslateErrorDialog(outputTxt);
+            } else {
+                // Correct translation
+                TextView translateTxtView = (TextView)
+                        this.activity.findViewById(R.id.translated_txt_view);
+                translateTxtView.setText(outputTxt);
             }
         }
     }

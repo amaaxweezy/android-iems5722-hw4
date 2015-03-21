@@ -1,6 +1,7 @@
 package com.iems5722.translateapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -8,81 +9,114 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getClass().getSimpleName();
 
-    protected TranslationRecordAdapter myAdapter;
-    protected ListView myListView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.instance_translation);
+        setContentView(R.layout.activity_main);
 
-        // Get the reference for our list view
-        this.myListView = (ListView) findViewById(R.id.translationRecords);
+        // Define translate button onClick handler
+        View.OnClickListener onTranslateButtonClickHandler = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        // Define a empty string list at first
-        List<String> translationRecords = new ArrayList<String>();
+                // Get the button reference
+                Button btn = (Button) v;
 
-        // Instantiate an adapter
-        myAdapter = new TranslationRecordAdapter(this, translationRecords);
+                // Get the name of that button
+                String nameOfBtn = btn.getText().toString();
 
-        // Attach the adapter to our view
-        myListView.setAdapter(myAdapter);
+                // Get protocol from analysing the name of the button
+                String protocol = nameOfBtn.matches((".*TCP.*")) ? "TCP" : "HTTP";
 
-        // add click listener to submit button to call
-        Button submitButton = (Button) this.findViewById(R.id.submit);
-        submitButton.setOnClickListener(new View.OnClickListener() {
+                if (BuildConfig.DEBUG) {
+                    Log.d(
+                            TAG,
+                            String.format("%s Translate button has been clicked", nameOfBtn)
+                    );
+                    Log.d(
+                            TAG,
+                            String.format("Protocol = |%s|", protocol)
+                    );
+                }
+
+                // Wire translateText() if the button has been clicked
+                MainActivity.this.translateText(protocol);
+            }
+        };
+
+        // add click listener to TCP button to call translateText()
+        Button TCPTranslateButton = (Button) this.findViewById(R.id.tcp_translate_btn);
+        TCPTranslateButton.setOnClickListener(onTranslateButtonClickHandler);
+
+        // add click listener to HTTP button to call translateText()
+        Button HTTPTranslateButton = (Button) this.findViewById(R.id.http_translate_btn);
+        HTTPTranslateButton.setOnClickListener(onTranslateButtonClickHandler);
+
+        // add click listener to record button to call
+        Button recordButton = (Button) this.findViewById(R.id.record_btn);
+        recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Submit button has been clicked");
+                    Log.d(TAG, "Translate records has been clicked");
                 }
-                MainActivity.this.translateText("HTTP");
+
+                // Wire up onClick handler to our activity method
+                MainActivity.this.showTranslateRecords();
+            }
+        });
+
+        // add click listener to share button ()
+        Button shareButton = (Button) this.findViewById(R.id.share_btn);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Wire shareText() if the button has been clicked
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Share button has been clicked");
+                }
+                MainActivity.this.shareText();
             }
         });
     }
 
-//    private void showTranslateRecords() {
-//        // Delegate the workload for showing records to ListTranslateRecord
-//
-//        Intent intent = new Intent(MainActivity.this, ListTranslateRecord.class);
-//        startActivity(intent);
-//    }
+    private void showTranslateRecords() {
+        // Delegate the workload for showing records to ListTranslateRecord
 
-//    private void shareText() {
-//        // Share translated text to other application by using INTENT
-//
-//        // Get translated text
-//        TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
-//        String translatedTxt = translateTxtView.getText().toString();
-//
-//        // Create a send intent
-//        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-//        sharingIntent.setType("text/plain");
-//        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Translated text");
-//        sharingIntent.putExtra(Intent.EXTRA_TEXT, translatedTxt);
-//        this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
-//    }
+        Intent intent = new Intent(MainActivity.this, ListTranslateRecord.class);
+        startActivity(intent);
+    }
 
-    protected void translateText(String protocol) {
+    private void shareText() {
+        // Share translated text to other application by using INTENT
+
+        // Get translated text
+        TextView translateTxtView = (TextView) this.findViewById(R.id.translated_txt_view);
+        String translatedTxt = translateTxtView.getText().toString();
+
+        // Create a send intent
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Translated text");
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, translatedTxt);
+        this.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
+    private void translateText(String protocol) {
         // Delegate workloads for looking up dictionary to Class::OnlineWordDictionary with
         // given protocol
         //
         // @param protocol String
 
         // get user input
-        EditText translateEdt = (EditText) this.findViewById(R.id.inputBox);
+        EditText translateEdt = (EditText) this.findViewById(R.id.translate_edt);
         String inputTxt = translateEdt.getText().toString();
         String outputTxt;
 
@@ -96,25 +130,9 @@ public class MainActivity extends Activity {
             outputTxt = "Input is empty";
             this.showTranslateEmptyToast(outputTxt);
         } else {
-            try {
-                // Trim text first
-                inputTxt = inputTxt.trim();
-
-                // Encode input text in URL format
-                inputTxt = URLEncoder.encode(inputTxt, "UTF-8");
-
-                // Send request to the online word dictionary
-                OnlineWordDictionary myDictionary = new OnlineWordDictionary(
-                        this,
-                        protocol,
-                        inputTxt
-                );
-                myDictionary.execute();
-            } catch (UnsupportedEncodingException e) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Input text cannot be encoded in URL format");
-                }
-            }
+            // Send request to the online word dictionary
+            OnlineWordDictionary myDictionary = new OnlineWordDictionary(this, protocol, inputTxt);
+            myDictionary.execute();
         }
     }
 
@@ -127,17 +145,6 @@ public class MainActivity extends Activity {
 
         Toast toast = Toast.makeText(this.getApplicationContext(), err, duration);
         toast.show();
-    }
-
-    public void addTranslationRecord(String input, String output) {
-        // An API for pushing string into our listView
-        //
-        // @param result String
-
-        this.myAdapter.add(input);
-        this.myAdapter.add(output);
-        this.myAdapter.notifyDataSetChanged();
-        this.myListView.setSelection(this.myAdapter.getCount() - 1);
     }
 
     public void showTranslateErrorDialog(String err) {
@@ -168,6 +175,9 @@ public class MainActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
