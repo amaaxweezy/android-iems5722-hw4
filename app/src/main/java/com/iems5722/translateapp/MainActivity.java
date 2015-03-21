@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,72 +17,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.instance_translation);
 
-        // Define translate button onClick handler
-        View.OnClickListener onTranslateButtonClickHandler = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // Get the button reference
-                Button btn = (Button) v;
-
-                // Get the name of that button
-                String nameOfBtn = btn.getText().toString();
-
-                // Get protocol from analysing the name of the button
-                String protocol = nameOfBtn.matches((".*TCP.*")) ? "TCP" : "HTTP";
-
-                if (BuildConfig.DEBUG) {
-                    Log.d(
-                            TAG,
-                            String.format("%s Translate button has been clicked", nameOfBtn)
-                    );
-                    Log.d(
-                            TAG,
-                            String.format("Protocol = |%s|", protocol)
-                    );
-                }
-
-                // Wire translateText() if the button has been clicked
-                MainActivity.this.translateText(protocol);
-            }
-        };
-
-        // add click listener to TCP button to call translateText()
-        Button TCPTranslateButton = (Button) this.findViewById(R.id.tcp_translate_btn);
-        TCPTranslateButton.setOnClickListener(onTranslateButtonClickHandler);
-
-        // add click listener to HTTP button to call translateText()
-        Button HTTPTranslateButton = (Button) this.findViewById(R.id.http_translate_btn);
-        HTTPTranslateButton.setOnClickListener(onTranslateButtonClickHandler);
-
-        // add click listener to record button to call
-        Button recordButton = (Button) this.findViewById(R.id.record_btn);
-        recordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Translate records has been clicked");
-                }
-
-                // Wire up onClick handler to our activity method
-                MainActivity.this.showTranslateRecords();
-            }
-        });
-
-        // add click listener to share button ()
-        Button shareButton = (Button) this.findViewById(R.id.share_btn);
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Wire shareText() if the button has been clicked
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Share button has been clicked");
-                }
-                MainActivity.this.shareText();
-            }
-        });
     }
 
     private void showTranslateRecords() {
