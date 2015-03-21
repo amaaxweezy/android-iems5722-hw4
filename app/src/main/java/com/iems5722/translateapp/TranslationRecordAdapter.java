@@ -15,6 +15,11 @@ import java.util.List;
  * Created by mondwan on 21/3/15.
  */
 public class TranslationRecordAdapter extends ArrayAdapter<String> {
+
+    private class ViewHolder {
+        TextView textView;
+    }
+
     // A constant for records aligned to left
     public static final int ALIGN_LEFT_TYPE = 1;
 
@@ -24,7 +29,14 @@ public class TranslationRecordAdapter extends ArrayAdapter<String> {
     // Define a tag for logging
     private static final String TAG = TranslationRecordAdapter.class.getClass().getSimpleName();
 
+
     public TranslationRecordAdapter(Activity context, List<String> list) {
+        // Constructor
+        //
+        // @param context Activity
+        // @param list List<String>
+
+        // Pass initialization works to super class
         super(context, R.layout.translation_record_line, list);
     }
 
@@ -65,36 +77,58 @@ public class TranslationRecordAdapter extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int viewType = this.getItemViewType(position);
-
+        // Default value
         int layoutResource = -1;
 
+        // Determine which way should text aligned
+        int viewType = this.getItemViewType(position);
         if (viewType == ALIGN_LEFT_TYPE) {
             layoutResource = R.layout.translation_record_line;
         } else if (viewType == ALIGN_RIGHT_TYPE) {
             layoutResource = R.layout.translation_record_line;
         }
 
+        // References as stated in variable name
+        ViewHolder viewHolder;
         TextView textView;
-        Context ctx = this.getContext();
 
+        // Determine whether convertView existed or not
         if (convertView != null) {
-            textView = (TextView) convertView.findViewById(R.id.recordLine);
-            textView.setText(this.getItem(position));
+            // Reuse element inside convertView
+            viewHolder = (ViewHolder) convertView.getTag();
+
+            // Setup the reference for later process
+            textView = viewHolder.textView;
         } else {
+            // Get the inflater reference
+            Context ctx = this.getContext();
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE
             );
+
+            // Create a view with elements defined by our XML
             convertView = inflater.inflate(layoutResource, parent, false);
+
+            // Find the TextView
             textView = (TextView) convertView.findViewById(R.id.recordLine);
-            textView.setText(this.getItem(position));
+
+            // Save them in our viewHolder
+            viewHolder = new ViewHolder();
+            viewHolder.textView = textView;
+
+            // Save our holder into to view element for later run
+            convertView.setTag(viewHolder);
         }
 
+        // Customize gravity option depends on the view type
         if (viewType == ALIGN_RIGHT_TYPE) {
             textView.setGravity(Gravity.END | Gravity.BOTTOM);
         } else if (viewType == ALIGN_LEFT_TYPE) {
             textView.setGravity(Gravity.START | Gravity.BOTTOM);
         }
+
+        // Show our translation record
+        textView.setText(this.getItem(position));
 
         return convertView;
     }
