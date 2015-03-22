@@ -1,6 +1,9 @@
 package com.iems5722.translateapp;
 
-import android.content.Context;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -84,6 +86,14 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         if (ret == null) {
             // If not, lookup from server
             ret = this.myHTTPLookUp();
+
+            // Checkout the translation
+            String translation = ret.get(this.queryWords);
+
+            // Save the translation to our database if this is not null
+            if (translation != null) {
+                this.saveTranslation(this.queryWords, translation);
+            }
         }
 
         return ret;
@@ -142,30 +152,48 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         this.activity.showTranslateErrorDialog(outputTxt);
     }
 
-    protected void saveTranslation(HashMap<String, String> map) {
-        // Helper method for saving translation
+    protected boolean saveTranslation(String queryWords, String translation) {
+        // Helper method for saving translation into our database
         //
-        // @param map HashMap<String, String>
-        //   <input, output>
+        // @param String queryWords
+        //
+        // @param String translation
 
-        String fileName = "translate_record";
-        try {
-            FileOutputStream outputStream = this.activity.openFileOutput(
-                    fileName, Context.MODE_APPEND);
+        boolean ret;
 
-            String translatedTxt = map.get(this.queryWords);
+        SQLiteDatabase db = this.myDbHelper.getWritableDatabase();
 
-            outputStream.write(String.format(
-                    "%s: %s\n",
-                    this.queryWords,
-                    translatedTxt == null ? "Translate Error" : translatedTxt
-            ).getBytes());
+        ContentValues values = new ContentValues();
+        values.put(InstantTranslatorActivity.MainTable.COLUMN_NAME_QUERY_WORDS, queryWords);
+        values.put(InstantTranslatorActivity.MainTable.COLUMN_NAME_TRANSLATION, translation);
 
-            outputStream.close();
+        long rowID = db.insert(InstantTranslatorActivity.MainTable.TABLE_NAME, null, values);
 
-        } catch (IOException e) {
-            Log.e(TAG, String.format("Saving error |%s|", e.getMessage()));
+        if (rowID > 0) {
+            ret = true;
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                        TAG,
+                        String.format(
+                                "Successfully insert translation |%s| -> |%s|",
+                                queryWords,
+                                translation
+                        )
+                );
+            }
+        } else {
+            ret = false;
+            Log.e(
+                    TAG,
+                    String.format(
+                            "Failure to insert translation |%s| -> |%s|",
+                            queryWords,
+                            translation
+                    )
+            );
         }
+
+        return ret;
     }
 
     protected HashMap<String, String> myDbLookup() {
@@ -178,8 +206,40 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         //   NOTE return NULL if there is no such record in the database
 
         HashMap<String, String> ret = null;
-        String inputTxt = this.queryWords;
 
+        String queryWords = this.queryWords;
+
+        String[] projection = {InstantTranslatorActivity.MainTable.COLUMN_NAME_TRANSLATION};
+
+        String whereClause = String.format(
+                "\"%s\"=\"%s\"",
+                InstantTranslatorActivity.MainTable.COLUMN_NAME_QUERY_WORDS,
+                queryWords
+        );
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        qb.setTables(InstantTranslatorActivity.MainTable.TABLE_NAME);
+
+        SQLiteDatabase db = this.myDbHelper.getReadableDatabase();
+
+        Cursor cursor = qb.query(db, projection, whereClause, null, null, null, null, null);
+
+        boolean isSuccess = cursor.moveToFirst();
+
+        if (isSuccess) {
+            // There is a record for such translation
+
+            int columnIndex = cursor.getColumnIndex(
+                    InstantTranslatorActivity.MainTable.COLUMN_NAME_TRANSLATION
+            );
+
+            String translation = cursor.getString(columnIndex);
+
+            ret = new HashMap<String, String>();
+
+            ret.put(queryWords, translation);
+        }
 
         return ret;
     }

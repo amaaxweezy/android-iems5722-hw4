@@ -53,7 +53,7 @@ public class InstantTranslatorActivity extends Activity {
             db.execSQL("CREATE TABLE " + MainTable.TABLE_NAME + " ("
                     + MainTable._ID + " INTEGER PRIMARY KEY,"
                     + MainTable.COLUMN_NAME_QUERY_WORDS + " TEXT" + ","
-                    + MainTable.COLUMN_NAME_TRANSLATION + " TEXT" + ","
+                    + MainTable.COLUMN_NAME_TRANSLATION + " TEXT"
                     + ");");
         }
 
