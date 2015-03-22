@@ -2,6 +2,7 @@ package com.iems5722.translateapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.ShareCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,9 @@ public class InstantTranslatorActivity extends Activity {
     // A reference for our listView so that we can still get it back after onCreate()
     protected ListView myListView;
 
+    // A reference for our inputBox
+    protected EditText myInputBox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Ask super class to do initialization first
@@ -47,6 +51,9 @@ public class InstantTranslatorActivity extends Activity {
         // Attach the adapter to our view
         this.myListView.setAdapter(myAdapter);
 
+        // Get user input
+        this.myInputBox = (EditText) this.findViewById(R.id.inputBox);
+
         // add click listener to submit button to call
         Button submitButton = (Button) this.findViewById(R.id.submit);
         submitButton.setOnClickListener(new View.OnClickListener() {
@@ -60,17 +67,47 @@ public class InstantTranslatorActivity extends Activity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        // Ask super class to work first
+        super.onResume();
+
+        // Get an instance from the library for parsing the intent
+        ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
+
+        // Further process if this activity was started by ACTION_SEND intent
+        if (intentReader.isSingleShare()) {
+            // Get words from intent
+            String s = intentReader.getText().toString();
+
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format("Shared string inside an intent: |%s|", s));
+            }
+
+            // Write word into our inputBox
+            this.myInputBox.setText(s);
+
+            // Force cursor at the end of the word
+            this.myInputBox.setSelection(this.myInputBox.getText().length());
+        }
+
+    }
+
     protected void translateText() {
         // Delegate workloads to Class::AnotherWordDictionary
 
         // Get user input
-        EditText translateEdt = (EditText) this.findViewById(R.id.inputBox);
-        String inputTxt = translateEdt.getText().toString();
+        String inputTxt = this.myInputBox.getText().toString();
+
+        // A reference to the output text
         String outputTxt;
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, String.format("User input %s", inputTxt));
         }
+
+        // Clear the input box
+        this.myInputBox.setText("");
 
         // Determine whether the given input is empty or not
         if (inputTxt.equals("")) {
