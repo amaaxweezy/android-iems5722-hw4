@@ -77,6 +77,7 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         //
         // @return HashMap<String, String>
 
+        // A reference which stores the operation result
         HashMap<String, String> ret;
 
         // Lookup local database for given queryWord first
@@ -108,9 +109,6 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         //   translated_words
         //
         //   NOTE: queryWords are encoded in URL format
-
-//        // Save Translation
-//        this.saveTranslation(myMap);
 
         // Checkout whether we got an error from server or not
         if (this.isServerError) {
@@ -158,6 +156,8 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         // @param String queryWords
         //
         // @param String translation
+        //
+        // @return boolean
 
         boolean ret;
 
@@ -175,7 +175,7 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
                 Log.d(
                         TAG,
                         String.format(
-                                "Successfully insert translation |%s| -> |%s|",
+                                "Successfully insert translation |%s| -> |%s| into database",
                                 queryWords,
                                 translation
                         )
@@ -186,7 +186,7 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
             Log.e(
                     TAG,
                     String.format(
-                            "Failure to insert translation |%s| -> |%s|",
+                            "Failure to insert translation |%s| -> |%s| into database",
                             queryWords,
                             translation
                     )
@@ -205,41 +205,55 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         //
         //   NOTE return NULL if there is no such record in the database
 
+        // A reference which stores the operation result
         HashMap<String, String> ret = null;
 
+        // A reference to the queryWords
         String queryWords = this.queryWords;
 
+        // Specify columns we want for later query
         String[] projection = {InstantTranslatorActivity.MainTable.COLUMN_NAME_TRANSLATION};
 
+        // Speciify filter which is COLUMN querwords equals to OUR querywords
         String whereClause = String.format(
                 "\"%s\"=\"%s\"",
                 InstantTranslatorActivity.MainTable.COLUMN_NAME_QUERY_WORDS,
                 queryWords
         );
 
+        // Instantiate a builder for SQL query
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
+        // Define the table we are going to search
         qb.setTables(InstantTranslatorActivity.MainTable.TABLE_NAME);
 
+        // Fetch database reference
         SQLiteDatabase db = this.myDbHelper.getReadableDatabase();
 
+        // Search
         Cursor cursor = qb.query(db, projection, whereClause, null, null, null, null, null);
 
+        // It will be true if there is such record
         boolean isSuccess = cursor.moveToFirst();
 
         if (isSuccess) {
             // There is a record for such translation
 
+            // Get back the column index from column name
             int columnIndex = cursor.getColumnIndex(
                     InstantTranslatorActivity.MainTable.COLUMN_NAME_TRANSLATION
             );
 
+            // Get back the translation
             String translation = cursor.getString(columnIndex);
 
-            ret = new HashMap<String, String>();
-
+            // Create a HashMap for saving result
+            ret = new HashMap<>();
             ret.put(queryWords, translation);
         }
+
+        // Close the connection
+        cursor.close();
 
         return ret;
     }
@@ -321,7 +335,6 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
             this.isServerError = true;
             this.errorMessage = e.getMessage();
         }
-
 
         return ret;
     }

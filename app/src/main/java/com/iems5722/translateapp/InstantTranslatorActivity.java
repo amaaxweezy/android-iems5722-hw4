@@ -23,25 +23,35 @@ import java.util.List;
 
 
 public class InstantTranslatorActivity extends Activity {
+    // An activity implement a translator with instant chat like style
 
     private static final String TAG = InstantTranslatorActivity.class.getClass().getSimpleName();
 
     public static final class MainTable implements BaseColumns {
+        // A concrete contract class which defines the layout of our database
+
         // This class cannot be instantiate
         private MainTable() {
             // Empty
         }
 
+        // Define the name of the table
         public static final String TABLE_NAME = "translation";
 
+        // Define the column querywords
         public static final String COLUMN_NAME_QUERY_WORDS = "querywords";
 
+        // Define the column translation
         public static final String COLUMN_NAME_TRANSLATION = "translation";
     }
 
     protected static class DatabaseHelper extends SQLiteOpenHelper {
+        // A concrete class for dealing with SQLite database easily
+
+        // Define the name of our database
         public static final String DATABASE_NAME = "Translator.db";
 
+        // Define the version of our database
         public static final int DATABASE_VERSION = 1;
 
         public DatabaseHelper(Context context) {
@@ -50,6 +60,8 @@ public class InstantTranslatorActivity extends Activity {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
+            // Create the data table
+
             db.execSQL("CREATE TABLE " + MainTable.TABLE_NAME + " ("
                     + MainTable._ID + " INTEGER PRIMARY KEY,"
                     + MainTable.COLUMN_NAME_QUERY_WORDS + " TEXT" + ","
@@ -59,6 +71,7 @@ public class InstantTranslatorActivity extends Activity {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // Not sure what is this :D
 
             // Logs that the database is being upgraded
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
