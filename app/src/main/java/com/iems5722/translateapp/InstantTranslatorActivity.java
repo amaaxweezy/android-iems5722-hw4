@@ -31,6 +31,9 @@ public class InstantTranslatorActivity extends Activity {
     // A reference for our inputBox
     protected EditText myInputBox;
 
+    // A reference to the Dictionary
+    protected AnotherWordDictionary myDictionary;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Ask super class to do initialization first
@@ -53,6 +56,9 @@ public class InstantTranslatorActivity extends Activity {
 
         // Get user input
         this.myInputBox = (EditText) this.findViewById(R.id.inputBox);
+
+        // Instantiate the Dictionary
+        this.myDictionary = new AnotherWordDictionary(this);
 
         // add click listener to submit button to call
         Button submitButton = (Button) this.findViewById(R.id.submit);
@@ -124,14 +130,11 @@ public class InstantTranslatorActivity extends Activity {
                 // Encode input text in URL format
                 inputTxt = URLEncoder.encode(inputTxt, "UTF-8");
 
-                // Send request to the online word dictionary
-                AnotherWordDictionary myDictionary = new AnotherWordDictionary(
-                        this,
-                        inputTxt
-                );
+                // Set query words
+                this.myDictionary.setQueryWords(inputTxt);
 
                 // Start query in asynchronous way
-                myDictionary.execute();
+                this.myDictionary.execute();
 
             } catch (UnsupportedEncodingException e) {
                 if (BuildConfig.DEBUG) {

@@ -28,7 +28,7 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
     protected InstantTranslatorActivity activity = null;
 
     // Store user input which will be looked up later
-    protected String query_words = "";
+    protected String queryWords = "";
 
     // A boolean indicate there are any errors related to the server
     protected boolean isServerError = false;
@@ -36,16 +36,22 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
     // An error message will be shown on dialog in case there are errors
     protected String errorMessage = "";
 
-    public AnotherWordDictionary(InstantTranslatorActivity activity, String query_words) {
+    public void setQueryWords(String queryWords) {
+        // Setter for queryWords
+        //
+        // @param queryWords String
+        //
+        //   URL encoded text which going to query.
+        //
+        this.queryWords = queryWords;
+    }
+
+    public AnotherWordDictionary(InstantTranslatorActivity activity) {
         // Constructor of the OnlineWordDictionary
         //
         // @param activity InstantTranslatorActivity
         //
         //   A reference for us to modify UI component
-        //
-        // @param query_words String
-        //
-        //   URL encoded text which going to query.
         //
         // @NOTE: If filling in protocol other than TCP or HTTP, assume running with TCP
 
@@ -54,9 +60,6 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
 
         // Store activity reference
         this.activity = activity;
-
-        // Store user input
-        this.query_words = query_words;
     }
 
     protected HashMap<String, String> doInBackground(Void... voids) {
@@ -78,10 +81,10 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         //
         // @param myMap HashMap<String, String>
         //
-        //   A key-value pair map where key is the query_words while the value is the
+        //   A key-value pair map where key is the queryWords while the value is the
         //   translated_words
         //
-        //   NOTE: query_words are encoded in URL format
+        //   NOTE: queryWords are encoded in URL format
 
 //        // Save Translation
 //        this.saveTranslation(myMap);
@@ -93,8 +96,8 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         } else {
             // Update the translation's list view
             try {
-                // Get the query_words
-                String query_words = this.query_words;
+                // Get the queryWords
+                String query_words = this.queryWords;
 
                 // Update UI according with the given map
                 String translation = myMap.get(query_words);
@@ -137,11 +140,11 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
             FileOutputStream outputStream = this.activity.openFileOutput(
                     fileName, Context.MODE_APPEND);
 
-            String translatedTxt = map.get(this.query_words);
+            String translatedTxt = map.get(this.queryWords);
 
             outputStream.write(String.format(
                     "%s: %s\n",
-                    this.query_words,
+                    this.queryWords,
                     translatedTxt == null ? "Translate Error" : translatedTxt
             ).getBytes());
 
@@ -157,7 +160,7 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
 
         HashMap<String, String> ret = new HashMap<>();
 
-        String inputTxt = this.query_words;
+        String inputTxt = this.queryWords;
 
         try {
             URL serverURL = new URL(
