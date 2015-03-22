@@ -1,7 +1,11 @@
 package com.iems5722.translateapp;
 
 import android.app.Activity;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.app.ShareCompat;
 import android.util.Log;
 import android.view.Menu;
@@ -22,6 +26,52 @@ public class InstantTranslatorActivity extends Activity {
 
     private static final String TAG = InstantTranslatorActivity.class.getClass().getSimpleName();
 
+    public static final class MainTable implements BaseColumns {
+        // This class cannot be instantiate
+        private MainTable() {
+            // Empty
+        }
+
+        public static final String TABLE_NAME = "translation";
+
+        public static final String COLUMN_NAME_QUERY_WORDS = "querywords";
+
+        public static final String COLUMN_NAME_TRANSLATION = "translation";
+    }
+
+    protected static class DatabaseHelper extends SQLiteOpenHelper {
+        public static final String DATABASE_NAME = "Translator.db";
+
+        public static final int DATABASE_VERSION = 1;
+
+        public DatabaseHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + MainTable.TABLE_NAME + " ("
+                    + MainTable._ID + " INTEGER PRIMARY KEY,"
+                    + MainTable.COLUMN_NAME_QUERY_WORDS + " TEXT" + ","
+                    + MainTable.COLUMN_NAME_TRANSLATION + " TEXT" + ","
+                    + ");");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+            // Logs that the database is being upgraded
+            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
+                    + newVersion + ", which will destroy all old data");
+
+            // Kills the table and existing data
+            db.execSQL("DROP TABLE IF EXISTS " + MainTable.TABLE_NAME);
+
+            // Recreates the database with a new version
+            onCreate(db);
+        }
+    }
+
     // A reference for our adapter so that we can still get it back after onCreate()
     protected TranslationRecordAdapter myAdapter;
 
@@ -33,6 +83,9 @@ public class InstantTranslatorActivity extends Activity {
 
     // A reference to the Dictionary
     protected AnotherWordDictionary myDictionary;
+
+    // A reference to the dbHelper
+    protected DatabaseHelper myDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +110,8 @@ public class InstantTranslatorActivity extends Activity {
         // Get user input
         this.myInputBox = (EditText) this.findViewById(R.id.inputBox);
 
-        // Instantiate the Dictionary
-        this.myDictionary = new AnotherWordDictionary(this);
+        // Instantiate the dbHelper
+        this.myDbHelper = new DatabaseHelper(this);
 
         // add click listener to submit button to call
         Button submitButton = (Button) this.findViewById(R.id.submit);
@@ -129,6 +182,11 @@ public class InstantTranslatorActivity extends Activity {
 
                 // Encode input text in URL format
                 inputTxt = URLEncoder.encode(inputTxt, "UTF-8");
+
+                // Instantiate the Dictionary
+                //
+                // NOTE: It must be created again since thread object cannot be reused
+                this.myDictionary = new AnotherWordDictionary(this, this.myDbHelper);
 
                 // Set query words
                 this.myDictionary.setQueryWords(inputTxt);

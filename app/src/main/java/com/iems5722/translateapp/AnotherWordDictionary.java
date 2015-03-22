@@ -36,6 +36,9 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
     // An error message will be shown on dialog in case there are errors
     protected String errorMessage = "";
 
+    // A reference to the db helper
+    protected InstantTranslatorActivity.DatabaseHelper myDbHelper;
+
     public void setQueryWords(String queryWords) {
         // Setter for queryWords
         //
@@ -46,7 +49,9 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         this.queryWords = queryWords;
     }
 
-    public AnotherWordDictionary(InstantTranslatorActivity activity) {
+    public AnotherWordDictionary(
+            InstantTranslatorActivity activity, InstantTranslatorActivity.DatabaseHelper myDbHelper
+    ) {
         // Constructor of the OnlineWordDictionary
         //
         // @param activity InstantTranslatorActivity
@@ -60,18 +65,26 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
 
         // Store activity reference
         this.activity = activity;
+
+        // Initialize database helper
+        this.myDbHelper = myDbHelper;
     }
 
     protected HashMap<String, String> doInBackground(Void... voids) {
-        // Fetch OnlineWordDictionary depends on the protocol
-        //
-        // @param urls Array of URL
+        // Translate given queryWords
         //
         // @return HashMap<String, String>
 
         HashMap<String, String> ret;
 
-        ret = this.myHTTPLookUp();
+        // Lookup local database for given queryWord first
+        ret = this.myDbLookup();
+
+        // Checkout whether we have such translation or not
+        if (ret == null) {
+            // If not, lookup from server
+            ret = this.myHTTPLookUp();
+        }
 
         return ret;
     }
@@ -153,6 +166,22 @@ public class AnotherWordDictionary extends AsyncTask<Void, Void, HashMap<String,
         } catch (IOException e) {
             Log.e(TAG, String.format("Saving error |%s|", e.getMessage()));
         }
+    }
+
+    protected HashMap<String, String> myDbLookup() {
+        // Lookup queryWords from local database
+        //
+        // @return HashMap<String, String>
+        //
+        //   key -> queryWords, value -> translation
+        //
+        //   NOTE return NULL if there is no such record in the database
+
+        HashMap<String, String> ret = null;
+        String inputTxt = this.queryWords;
+
+
+        return ret;
     }
 
     protected HashMap<String, String> myHTTPLookUp() {
